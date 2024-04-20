@@ -1,0 +1,62 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <h2>Stock Closing price Predictions</h2>
+  <form action="{% url 'IST_APP:results' %}" method="post">
+    {% csrf_token %}
+
+    <div class="mb-3 mt-5">
+      <label for="selectTicker" class="form-label">
+        Select a Stock Ticker
+      </label>
+      <select id="stock-select" name="selected_stock">
+        <option value="">Select a stock...</option>
+        {% for stock in stocks %}
+        <option value="{{ stock }}">{{ stock }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    Details of {{ selected_stock }}:
+    <div>
+      Data Table
+      {{ data|safe }}
+    </div>
+    <div>
+      Stock Price Chart
+      {{ plot_div|safe }}
+    </div>
+
+    <div class="mb-3">
+      <label for="profitMargin" class="form-label">
+        Enter your investment amount ($):</label
+      >
+      <input
+        type="number"
+        class="form-control"
+        id="profitMargin"
+        name="profitMargin"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="investmentInterval" class="form-label"
+        >Investment Interval</label
+      >
+      <select
+        class="form-select"
+        id="investmentInterval"
+        name="investmentInterval"
+        required
+      >
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+        <!--       <option value="quarterly">Quarterly</option>-->
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Get Recommendations</button>
+  </form>
+</div>
+{% endblock %}
