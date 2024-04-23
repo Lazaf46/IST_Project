@@ -1,11 +1,9 @@
-from django.urls import path
-from . import views
-from .views import StockView
+# IST_APP/urls.py
 
-app_name = 'IST_APP'
+from django.urls import path
+from .views import stock_dashboard, get_stock_data
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('search/', StockView.as_view(), name='search'),
-    path('results/', views.results, name='results'),
+    path('dashboard/', stock_dashboard, name='stock_dashboard'),
+    path('get_data/', get_stock_data, name='get_stock_data'),  # Ensure the name matches 'stock_data'
 ]

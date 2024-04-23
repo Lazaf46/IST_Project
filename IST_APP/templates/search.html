@@ -1,62 +1,77 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container mt-5">
-  <h2>Stock Closing price Predictions</h2>
-  <form action="{% url 'IST_APP:results' %}" method="post">
-    {% csrf_token %}
+<!-- search.html -->
 
-    <div class="mb-3 mt-5">
-      <label for="selectTicker" class="form-label">
-        Select a Stock Ticker
-      </label>
-      <select id="stock-select" name="selected_stock">
-        <option value="">Select a stock...</option>
-        {% for stock in stocks %}
-        <option value="{{ stock }}">{{ stock }}</option>
-        {% endfor %}
-      </select>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <h1>Stock Market Closing Price Prediction</h1>
 
-    Details of {{ selected_stock }}:
-    <div>
-      Data Table
-      {{ data|safe }}
-    </div>
-    <div>
-      Stock Price Chart
-      {{ plot_div|safe }}
-    </div>
+    <label for="stock-select">Select a Stock:</label>
+    <select id="stock-select">
+      <option value="">Choose a stock...</option>
+      {% for stock in stocks %}
+      <option value="{{ stock }}">{{ stock }}</option>
+      {% endfor %}
+    </select>
 
-    <div class="mb-3">
-      <label for="profitMargin" class="form-label">
-        Enter your investment amount ($):</label
-      >
-      <input
-        type="number"
-        class="form-control"
-        id="profitMargin"
-        name="profitMargin"
-        required
-      />
-    </div>
+    <div id="loading-indicator" style="display: none">Loading...</div>
 
-    <div class="mb-3">
-      <label for="investmentInterval" class="form-label"
-        >Investment Interval</label
-      >
-      <select
-        class="form-select"
-        id="investmentInterval"
-        name="investmentInterval"
-        required
-      >
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
-        <option value="monthly">Monthly</option>
-        <!--       <option value="quarterly">Quarterly</option>-->
-      </select>
-    </div>
+    <h2 id="stock-details-heading" style="display: none">
+      Details of the Selected Stock
+    </h2>
+    <div id="data-display"></div>
 
-    <button type="submit" class="btn btn-primary">Get Recommendations</button>
-  </form>
-</div>
-{% endblock %}
+    <div id="plotly-chart"></div>
+
+    <script>
+      // Function to load stock data when a stock is selected
+      function loadStockData() {
+        var selectedStock = document.getElementById("stock-select").value;
+        if (!selectedStock) {
+          alert("Please select a stock.");
+          return;
+        }
+
+        // Display loading indicator
+        $("#loading-indicator").show();
+
+        $.ajax({
+          url: "{% url 'get_stock_data' %}",
+          type: "GET",
+          data: {
+            selected_stock: selectedStock,
+          },
+          success: function (response) {
+            // Hide loading indicator
+            $("#loading-indicator").hide();
+
+            // Display stock details heading
+            $("#stock-details-heading").show();
+
+            // Display the last 5 data entries
+            $("#data-display").html(response.data);
+
+            // Display Plotly chart
+            $("#plotly-chart").html(response.plot_div);
+          },
+          error: function (xhr, errmsg, err) {
+            // Hide loading indicator on error
+            $("#loading-indicator").hide();
+            alert("Failed to load data. " + errmsg);
+          },
+        });
+      }
+
+      // Attach onchange event listener to stock-select dropdown
+      document.getElementById("stock-select").onchange = function () {
+        loadStockData(); // Call loadStockData() when a stock is selected
+      };
+    </script>
+  </body>
+</html>
