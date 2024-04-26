@@ -1,10 +1,9 @@
-# views.py
-
 from django.shortcuts import render
 from django.http import JsonResponse
 import pandas as pd
 import yfinance as yf
 import plotly.graph_objs as go
+
 
 def stock_dashboard(request):
     stocks = [
@@ -18,6 +17,7 @@ def stock_dashboard(request):
 
 def get_stock_data(request):
     selected_stock = request.GET.get('selected_stock')
+    print("selected_stock:", selected_stock)
     if not selected_stock:
         return JsonResponse({'error': 'Please select a stock.'}, status=400)
 
@@ -36,6 +36,7 @@ def load_stock_data(ticker):
     END = pd.Timestamp.today().strftime('%Y-%m-%d')
     data = yf.download(ticker, start=START, end=END)
     data.reset_index(inplace=True)
+    print(data.head())
     return data
 
 def generate_plot(data):
