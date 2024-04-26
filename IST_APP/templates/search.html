@@ -1,77 +1,67 @@
-<!-- search.html -->
+{% extends 'base.html' %} {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stock Dashboard</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  </head>
-  <body>
-    <h1>Stock Market Closing Price Prediction</h1>
+  <h1>Stock Market Closing Price Prediction</h1>
 
-    <label for="stock-select">Select a Stock:</label>
-    <select id="stock-select">
-      <option value="">Choose a stock...</option>
-      {% for stock in stocks %}
-      <option value="{{ stock }}">{{ stock }}</option>
-      {% endfor %}
-    </select>
+  <label for="stock-select">Select a Stock:</label>
+  <select id="stock-select">
+    <option value="">Choose a stock...</option>
+    {% for stock in stocks %}
+    <option value="{{ stock }}">{{ stock }}</option>
+    {% endfor %}
+  </select>
 
-    <div id="loading-indicator" style="display: none">Loading...</div>
+  <div id="loading-indicator" style="display: none">Loading...</div>
 
-    <h2 id="stock-details-heading" style="display: none">
-      Details of the Selected Stock
-    </h2>
-    <div id="data-display"></div>
+  <h2 id="stock-details-heading" style="display: none">
+    Details of the Selected Stock
+  </h2>
+  <div id="data-display"></div>
 
-    <div id="plotly-chart"></div>
+  <div id="plotly-chart"></div>
 
-    <script>
-      // Function to load stock data when a stock is selected
-      function loadStockData() {
-        var selectedStock = document.getElementById("stock-select").value;
-        if (!selectedStock) {
-          alert("Please select a stock.");
-          return;
-        }
-
-        // Display loading indicator
-        $("#loading-indicator").show();
-
-        $.ajax({
-          url: "{% url 'get_stock_data' %}",
-          type: "GET",
-          data: {
-            selected_stock: selectedStock,
-          },
-          success: function (response) {
-            // Hide loading indicator
-            $("#loading-indicator").hide();
-
-            // Display stock details heading
-            $("#stock-details-heading").show();
-
-            // Display the last 5 data entries
-            $("#data-display").html(response.data);
-
-            // Display Plotly chart
-            $("#plotly-chart").html(response.plot_div);
-          },
-          error: function (xhr, errmsg, err) {
-            // Hide loading indicator on error
-            $("#loading-indicator").hide();
-            alert("Failed to load data. " + errmsg);
-          },
-        });
+  <script>
+    // Function to load stock data when a stock is selected
+    function loadStockData() {
+      var selectedStock = document.getElementById("stock-select").value;
+      if (!selectedStock) {
+        alert("Please select a stock.");
+        return;
       }
 
-      // Attach onchange event listener to stock-select dropdown
-      document.getElementById("stock-select").onchange = function () {
-        loadStockData(); // Call loadStockData() when a stock is selected
-      };
-    </script>
-  </body>
-</html>
+      // Display loading indicator
+      $("#loading-indicator").show();
+
+      $.ajax({
+        url: "{% url 'get_stock_data' %}",
+        type: "GET",
+        data: {
+          selected_stock: selectedStock,
+        },
+        success: function (response) {
+          // Hide loading indicator
+          $("#loading-indicator").hide();
+
+          // Display stock details heading
+          $("#stock-details-heading").show();
+
+          // Display the last 5 data entries
+          $("#data-display").html(response.data);
+
+          // Display Plotly chart
+          $("#plotly-chart").html(response.plot_div);
+        },
+        error: function (xhr, errmsg, err) {
+          // Hide loading indicator on error
+          $("#loading-indicator").hide();
+          alert("Failed to load data. " + errmsg);
+        },
+      });
+    }
+
+    // Attach onchange event listener to stock-select dropdown
+    document.getElementById("stock-select").onchange = function () {
+      loadStockData(); // Call loadStockData() when a stock is selected
+    };
+  </script>
+
+{% endblock %}
