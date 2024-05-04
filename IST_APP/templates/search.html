@@ -18,18 +18,6 @@
       {% endfor %}
     </select>
 
-    <div id="investment-amount-div" style="display: none">
-      <label for="investment-amount">Enter your investment amount($):</label>
-      <input type="number" id="investment-amount" step="100.0" />
-    </div>
-
-    <div id="investing-days-div" style="display: none">
-      <label for="investing-days"
-        >Enter the investing time period in days:</label
-      >
-      <input type="number" id="investing-days" step="1" />
-    </div>
-
     <div id="loading-indicator" style="display: none">Loading...</div>
 
     <h2 id="stock-details-heading" style="display: none">
@@ -48,9 +36,24 @@
       <p id="r2"></p>
     </div>
 
+    
+
     <h2 id="investment-analysis-heading" style="display: none">
       Investment Analysis and Profit
     </h2>
+
+    <div id="investment-amount-div" style="display: none">
+      <label for="investment-amount">Enter your investment amount($):</label>
+      <input type="number" id="investment-amount" step="100.0" />
+    </div>
+
+    <div id="investing-days-div" style="display: none">
+      <label for="investing-days"
+        >Enter the investing time period in days:</label
+      >
+      <input type="number" id="investing-days" step="1" />
+    </div>
+
     <div id="investment-analysis-result" style="display: none">
       <p id="num-stocks"></p>
       <p id="potential-profit-loss"></p>
@@ -65,10 +68,9 @@
           alert("Please select a stock.");
           return;
         }
-
-        // Display investment amount and investing days input fields
-        $("#investment-amount-div").show();
-        $("#investing-days-div").show();
+            // Display investment amount and investing days input fields
+            $("#investment-amount-div").show();
+            $("#investing-days-div").show();
 
         $.ajax({
           url: "{% url 'get_stock_data' %}",
@@ -108,6 +110,7 @@
 
             // Display investment analysis result
             $("#investment-analysis-heading").show();
+            
             $("#investment-analysis-result").show();
             $("#num-stocks").text(
               "Number of stocks you can buy: " +

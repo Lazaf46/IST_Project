@@ -102,7 +102,7 @@ def calculate_investment_analysis(data, investment_amount, investing_days):
             potential_profit_loss = (future_price - stock_price) * num_stocks
             full_amount_with_invest = future_price * num_stocks
 
-            return {'num_stocks': num_stocks, 'potential_profit_loss': potential_profit_loss, 'full_amount_with_invest': full_amount_with_invest}, {'predicted_dates': predicted_dates, 'predicted_prices': predicted_prices}
+            return {'num_stocks': num_stocks, 'potential_profit_loss': potential_profit_loss, 'full_amount_with_invest': full_amount_with_invest}
         else:
             return {'error': 'Failed to fetch future price data.'}
     except Exception as e:
