@@ -8,6 +8,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from math import sqrt
 
+def index(request):
+    return render(request, 'index.html')
+
 def stock_dashboard(request):
     stocks = [
         "GOOG", "MSFT", "AMZN", "TSLA", "NFLX", "KO", "PG", "JNJ", "V", "MA",
@@ -35,11 +38,14 @@ def get_stock_data(request):
     # Perform investment analysis
     investment_analysis = calculate_investment_analysis(data, investment_amount, investing_days)
 
+    # Predict future stock prices
+    predicted_prices = calculate_predicted_prices(data, investing_days)
+
     # Get only the last 5 rows of the data
     last_5_data = data.tail(5)
     html_data = last_5_data.to_html()
 
-    return JsonResponse({'data': html_data, 'plot_div': plot_div, 'analysis_result': analysis_result, 'investment_analysis': investment_analysis})
+    return JsonResponse({'data': html_data, 'plot_div': plot_div, 'analysis_result': analysis_result, 'investment_analysis': investment_analysis,'predicted_prices': predicted_prices})
 
 def load_stock_data(ticker):
     START = '2020-01-01'
@@ -85,6 +91,7 @@ def analyze_today_closing_price(data):
 
     return {'predicted_today_close': predicted_close[0], 'rmse_test': rmse_test, 'r2_test': r2_test}
 
+
 def calculate_investment_analysis(data, investment_amount, investing_days):
     yesterday_close = data['Close'].iloc[-1]
     predicted_today_close = analyze_today_closing_price(data)['predicted_today_close']
@@ -107,3 +114,29 @@ def calculate_investment_analysis(data, investment_amount, investing_days):
             return {'error': 'Failed to fetch future price data.'}
     except Exception as e:
         return {'error': str(e)}
+    
+    
+def calculate_predicted_prices(data, investing_days):
+    data['Yesterday_Close'] = data['Close'].shift(1)
+    data.dropna(inplace=True)
+
+    X = data[['Yesterday_Close']]
+    y = data['Close']
+
+    # Initialize the Linear Regression model
+    model = LinearRegression()
+
+    # Train the model
+    model.fit(X, y)
+
+    # Predict prices for investing days
+    last_close_price = data['Close'].iloc[-1]
+    predicted_prices = []
+    for i in range(1, investing_days + 1):
+        predicted_price = model.predict([[last_close_price]])
+        predicted_prices.append(predicted_price[0])
+        last_close_price = predicted_price[0]
+    return predicted_prices
+
+
+

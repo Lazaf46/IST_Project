@@ -1,7 +1,7 @@
 # IST_APP/urls.py
 
 from django.urls import path
-from .views import stock_dashboard, get_stock_data
+from .views import stock_dashboard, get_stock_data, index
 
 urlpatterns = [
     path('', stock_dashboard, name='stock_dashboard'),

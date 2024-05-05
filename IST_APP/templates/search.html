@@ -6,9 +6,59 @@
     <title>Stock Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2, label {
+      margin-bottom: 10px;
+    }
+    select, input {
+      margin-bottom: 20px;
+    }
+    #loading-indicator {
+      display: none;
+      font-weight: bold;
+      color: blue;
+    }
+    #stock-details-heading,
+    #analysis-heading,
+    #investment-analysis-heading,
+    #predicted-prices-heading {
+      display: none;
+      margin-top: 30px;
+    }
+    #data-display {
+      margin-bottom: 20px;
+    }
+    #plotly-chart,
+    #predicted-prices-chart {
+      margin-top: 20px;
+    }
+   
+    #investment-analysis-result,
+    #analysis-result {
+      display: none;
+      margin-top: 20px;
+    }
+    </style>
   </head>
   <body>
     <h1>Stock Market Closing Price Prediction</h1>
+
+    <div id="investment-amount-div">
+      <label for="investment-amount">Enter your investment amount($):</label>
+      <input type="number" id="investment-amount" step="100.0" />
+    </div>
+
+    <div id="investing-days-div">
+      <label for="investing-days"
+        >Enter the investing time period in days:</label
+      >
+      <input type="number" id="investing-days" step="1" />
+    </div>
 
     <label for="stock-select">Select a Stock:</label>
     <select id="stock-select">
@@ -36,41 +86,39 @@
       <p id="r2"></p>
     </div>
 
-    
-
     <h2 id="investment-analysis-heading" style="display: none">
       Investment Analysis and Profit
     </h2>
-
-    <div id="investment-amount-div" style="display: none">
-      <label for="investment-amount">Enter your investment amount($):</label>
-      <input type="number" id="investment-amount" step="100.0" />
-    </div>
-
-    <div id="investing-days-div" style="display: none">
-      <label for="investing-days"
-        >Enter the investing time period in days:</label
-      >
-      <input type="number" id="investing-days" step="1" />
-    </div>
-
     <div id="investment-analysis-result" style="display: none">
       <p id="num-stocks"></p>
       <p id="potential-profit-loss"></p>
       <p id="full-amount-with-invest"></p>
     </div>
 
+   
+
+    <div id="predicted-prices-chart"></div>
+
+    <script>
+      $(document).ready(function () {
+        $("#investment-amount").val("");
+        $("#investing-days").val("");
+        $("#stock-select").val("");
+      });
+    </script>
+
     <script>
       // Function to load stock data when a stock is selected
       function loadStockData() {
         var selectedStock = document.getElementById("stock-select").value;
+        var investingDays = $("#investing-days").val();
         if (!selectedStock) {
           alert("Please select a stock.");
           return;
         }
-            // Display investment amount and investing days input fields
-            $("#investment-amount-div").show();
-            $("#investing-days-div").show();
+        // Display investment amount and investing days input fields
+        $("#investment-amount-div").show();
+        $("#investing-days-div").show();
 
         $.ajax({
           url: "{% url 'get_stock_data' %}",
@@ -110,7 +158,6 @@
 
             // Display investment analysis result
             $("#investment-analysis-heading").show();
-            
             $("#investment-analysis-result").show();
             $("#num-stocks").text(
               "Number of stocks you can buy: " +
@@ -129,17 +176,18 @@
                 response.investment_analysis.full_amount_with_invest.toFixed(2)
             );
 
-            // Plot predicted prices over investing days
-            var predictedDates = response.predicted_prices.predicted_dates;
-            var predictedPrices = response.predicted_prices.predicted_prices;
-
+            // Display predicted prices chart
+            var predictedDates = [];
+            for (var i = 1; i <= $("#investing-days").val(); i++) {
+              predictedDates.push(i);
+            }
             var tracePredictedPrices = {
               x: predictedDates,
-              y: predictedPrices,
+              y: response.predicted_prices,
+              type: "scatter",
               mode: "lines",
               name: "Predicted Prices",
             };
-
             var dataPredictedPrices = [tracePredictedPrices];
             var layoutPredictedPrices = {
               title:
@@ -153,12 +201,12 @@
                 title: "Predicted Price",
               },
             };
-
             Plotly.newPlot(
               "predicted-prices-chart",
               dataPredictedPrices,
               layoutPredictedPrices
             );
+            $("#predicted-prices-heading").show();
           },
           error: function (xhr, errmsg, err) {
             // Hide loading indicator on error
